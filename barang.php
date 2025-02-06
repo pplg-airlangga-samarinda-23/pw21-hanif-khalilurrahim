@@ -89,7 +89,8 @@ foreach($barang as $key => $value) {
             <?php
                 $no = 1;
                 //foreach ($barang as $item) 
-                while ($item = mysqli_fetch_assoc($rows)){
+                // while ($item = mysqli_fetch_assoc($rows)){
+                foreach ($rows as $item) :
             ?>
                                 
             <tr>
@@ -98,16 +99,18 @@ foreach($barang as $key => $value) {
                 <td> <?= $item["stok"] ?></td>
                 <td> <?= $item["status"] ?></td>
                 <td> 
-                    <a href="edit-tambah-barang.php?id=<?$item['id']?>">Edit</a>
-                    <a href="hapus-data.php"id=<?=$item['id']?>>Hapus</a> 
+                    <a href="edit-tambah-barang.php?id=<?=$item['id']?>">Edit</a>
+                    <a href="hapus-data.php?id=<?=$item['id']?>">Hapus</a> 
                 </td>
             </tr>
                 
             <?php
             $no += 1;
-                }
+            endforeach;
             ?>
-                
+            <?php foreach ($rows as $row) : ?>
+
+            <?php endforeach; ?>
             <tbody>
 
         </table>

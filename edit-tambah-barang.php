@@ -1,42 +1,20 @@
 <?php
 require "koneksi.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['id'])) {
-    $id = intval($_GET['id']); // Pastikan ID adalah integer
-    $sql = "SELECT * FROM barang WHERE id = ?";
-    $stmt = $koneksi->prepare($sql);
-    $stmt->bind_param("i", $id);
-    
-    if ($stmt->execute()) {
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-    } else {
-        die("Query gagal: " . $stmt->error);
-    }
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    $id = $_GET['id'];
+    $sql = "SELECT * FROM barang WHERE id=?";
+    $row = $koneksi->execute_query($sql, [$id])->fetch_assoc();
+} elseif ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $nama = $_POST["nama"];
+    $stok = $_POST["stok"];
+    $status = $_POST["status"];
+    $id = $_GET["id"];
 
-    $stmt->close();
-} elseif ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['id'])) {
-    $id = intval($_POST["id"]);
-    $nama = trim($_POST["nama"]);
-    $stok = intval($_POST["stok"]);
-    $status = trim($_POST["status"]);
+    $sql = "UPDATE barang SET nama_barang=?, stok=?, status=? WHERE id=?";
+    $row = $koneksi->execute_query($sql, [$nama, $stok, $status, $id]);
+    header("location:barang.php");
 
-    if (!empty($nama) && is_numeric($stok) && !empty($status)) {
-        $sql = "UPDATE barang SET nama = ?, stok = ?, status = ? WHERE id = ?";
-        $stmt = $koneksi->prepare($sql);
-        $stmt->bind_param("sisi", $nama, $stok, $status, $id);
-        
-        if ($stmt->execute()) {
-            header("Location: barang.php");
-            exit();
-        } else {
-            die("Gagal memperbarui data: " . $stmt->error);
-        }
-
-        $stmt->close();
-    } else {
-        die("Input tidak valid.");
-    }
 }
 ?>
 
@@ -47,22 +25,26 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['id'])) {
 </head>
 <body>
     <h1 style="font-size:large">Edit barang</1h>
-    <form action="" method="post">
+    <form action="" method="POST">
         <div class="form-item">
             <label for="nama">Nama barang</label>
-            <input type="text" name="nama" id="nama" value="<?=row['nama']?>">
+            <input type="text" name="nama" id="nama" value="<?=$row['nama_barang']?>">
         </div>
+
         <div class="form-item">
             <label for="stok">Stok</label>
-            <input type="number" name="stok" id="stok" value="<?=row['stok']?>">
+            <input type="number" name="stok" id="stok" value="<?=$row['stok']?>">
         </div>
+
         <div class="form-item">
             <label for="status">Status</label>
             <select name="status" id="status">
                 <option values="baik" <?=($row['status'] == 'baik')?'selected':''?> >baik</option>
                 <option values="rusak" <?=($row['status'] == 'rusak')?'selected':''?> >rusak</option>
             </select>
-            <button type="submit">Submit</button>
-        </form>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <a href="barang.php">Kembali</a>
 </body>
 </html>
